@@ -26,6 +26,7 @@ project.assets.json
 *.log
 *.cache
 *.pdb
+*.txt
 
 # OS
 Thumbs.db
