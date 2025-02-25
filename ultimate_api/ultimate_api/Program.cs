@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using NLog;
 using Repository;
 using ultimate_api.Extensions;
@@ -9,11 +10,9 @@ using ultimate_api.Extensions;
 
 
 var builder = WebApplication.CreateBuilder(args);
-
-
-LogManager.LoadConfiguration(string.Concat(Directory.GetCurrentDirectory(),"/nlog.config"));
-
-
+// Don't try and load nlog config during integ tests.
+var nLogConfigPath = string.Concat(Directory.GetCurrentDirectory(), "/nlog.config");
+if (File.Exists(nLogConfigPath)) { LogManager.LoadConfiguration(string.Concat(Directory.GetCurrentDirectory(), "/nlog.config")); }
 
 // Add services to the container.
 
@@ -22,6 +21,9 @@ LogManager.LoadConfiguration(string.Concat(Directory.GetCurrentDirectory(),"/nlo
 builder.Services.ConfigureCors();
 builder.Services.ConfigureIISIntegration();
 builder.Services.ConfigureLoggerService();
+builder.Services.ConfigureRepositoryManager();
+builder.Services.ConfigureServiceManager();
+builder.Services.ConfigureSqlContext(builder.Configuration);
 
 //end -- ultimate_api.Extensions
 
@@ -49,26 +51,6 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 app.UseCors("CorsPolicy");
 
 app.UseAuthorization();
-//app.Use(async (context, next) =>
-//{
-//    await next.Invoke();
-//    Console.WriteLine($"Logic after executing the next delegate in the Use method");
-//});
-//app.MapWhen(context => context.Request.Query.ContainsKey("testquerystring"), builder
-//=>
-//{
-//    builder.Run(async context =>
-//    {
-//        await context.Response.WriteAsync("Hello from the MapWhen branch.");
-//    });
-//});
-//app.Run(async context =>
-//{
-//    Console.WriteLine($"Writing the response to the client in the Run method");
-//    await context.Response.WriteAsync("Hello from the middleware component.111");
-//});
-
-
 
 app.MapControllers();
 

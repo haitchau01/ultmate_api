@@ -9,10 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\LoggerService\LoggerService.csproj" />
     <ProjectReference Include="..\Repository\Repository.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="internal_logs\logs\" />
+    <ProjectReference Include="..\Service\Service.csproj" />
   </ItemGroup>
 
   <ItemGroup>
