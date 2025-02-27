@@ -1,6 +1,6 @@
-@ultimate_api_HostAddress = http://localhost:5149
+//@ultimate_api_HostAddress = http://localhost:5149
 
-GET {{ultimate_api_HostAddress}}/User/
-Accept: application/json
+//GET {{ultimate_api_HostAddress}}/User/
+//Accept: application/json
 
 ###

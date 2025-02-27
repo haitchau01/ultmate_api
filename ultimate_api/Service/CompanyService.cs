@@ -1,22 +1,33 @@
 ﻿using Constracts;
+using Entities.Models;
 using Service.Constracts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Service
 {
     sealed class CompanyService : ICompanyService
     {
-            private readonly IRepositoryManager _repository;
-            private readonly ILoggerManager _logger;
-            public CompanyService(IRepositoryManager repository, ILoggerManager
-            logger)
+        private readonly IRepositoryManager _repository;
+
+        private readonly ILoggerManager _logger;
+
+        public CompanyService(IRepositoryManager repository, ILoggerManager logger)
+        {
+            _repository = repository;
+            _logger = logger;
+        }
+        public IEnumerable<Company> GetAllCompanies(bool trackChanges)
+        {
+            try
             {
-                _repository = repository;
-                _logger = logger;
+                var companies = _repository.Company.GetAllCompanies(trackChanges);
+                return companies;
             }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Something went wrong in the {nameof(GetAllCompanies)} servicemethod {ex}");
+                throw;
+            }
+        }
+
     }
 }
