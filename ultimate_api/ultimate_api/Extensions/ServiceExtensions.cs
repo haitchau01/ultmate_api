@@ -1,4 +1,6 @@
-﻿using Constracts;
+﻿using AutoMapper;
+using Constracts;
+using Entities.Models;
 using LoggerService;
 using Microsoft.EntityFrameworkCore;
 using Repository;
