@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Exceptions;
+using Microsoft.AspNetCore.Mvc;
 using Service.Constracts;
 
 namespace Presentation.Controllers
@@ -17,15 +18,12 @@ namespace Presentation.Controllers
         [HttpGet]
         public IActionResult GetCompanies()
         {
-            try
+            var companies = _serviceManager.CompanyService.GetAllCompanies(trackChanges: false);
+            if (companies == null)
             {
-                var companies = _serviceManager.CompanyService.GetAllCompanies(trackChanges: false);
-                return Ok(companies);
+                throw new NotFoundException("Company information not found!");
             }
-            catch
-            {
-                return StatusCode(500, "Internal server error");
-            }
+            return Ok(companies);
         }
     }
 }
