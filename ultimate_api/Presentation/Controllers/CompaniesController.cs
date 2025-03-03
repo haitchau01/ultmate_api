@@ -1,5 +1,4 @@
-﻿using Exceptions;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Service.Constracts;
 
 namespace Presentation.Controllers
@@ -15,15 +14,12 @@ namespace Presentation.Controllers
             _serviceManager = serviceManager;
         }
 
-        [HttpGet]
-        public IActionResult GetCompanies()
+        [HttpGet("{id:guid}")]
+        public IActionResult GetCompany(Guid id)
         {
-            var companies = _serviceManager.CompanyService.GetAllCompanies(trackChanges: false);
-            if (companies == null)
-            {
-                throw new NotFoundException("Company information not found!");
-            }
-            return Ok(companies);
+            var company = _serviceManager.CompanyService.GetCompany(id, trackChanges: false);
+            return Ok(company);
         }
+
     }
 }

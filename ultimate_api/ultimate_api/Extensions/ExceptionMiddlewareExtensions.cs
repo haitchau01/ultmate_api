@@ -1,53 +1,34 @@
 ﻿using Constracts;
 using Entities.ErrorModels;
-using System.Net;
+using Entities.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
-using Exceptions;
 
-namespace ultimate_api.Extensions
+public static class ExceptionMiddlewareExtensions
 {
-    public static class ExceptionMiddlewareExtensions
+    public static void ConfigureExceptionHandler(this WebApplication app,
+   ILoggerManager logger)
     {
-        /// <summary>
-        /// Error handling with middleware
-        /// </summary>
-        /// <param name="app"></param>
-        /// <param name="logger"></param>
-        public static void ConfigureExceptionHandler(this WebApplication app, ILoggerManager logger)
+        app.UseExceptionHandler(appError =>
         {
-            //regist exception
-            app.UseExceptionHandler(appError =>
+            appError.Run(async context =>
             {
-                //when an exception occurs this midleware called
-                appError.Run(async context =>
+                context.Response.ContentType = "application/json";
+                var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
+                if (contextFeature != null)
                 {
-                    context.Response.ContentType = "application/json";
-
-                    // get detail exception
-                    var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
-                    if (contextFeature != null)
+                    context.Response.StatusCode = contextFeature.Error switch
                     {
-                        // for details err
-                        context.Response.StatusCode = contextFeature.Error switch
-                        {
-                            NotFoundException => (int)HttpStatusCode.NotFound,
-                            ValidationException => (int)HttpStatusCode.BadRequest,
-                            Exceptions.UnauthorizedAccessException => (int)HttpStatusCode.Unauthorized,
-                            _ => (int)HttpStatusCode.InternalServerError
-                        };
-
-                        //add to logger
-                        logger.LogError($"Something went wrong: {contextFeature.Error}");
-
-                        //return json for client
-                        await context.Response.WriteAsync(new ErrorDetails()
-                        {
-                            StatusCode = context.Response.StatusCode,
-                            Message = contextFeature.Error.Message
-                        }.ToString());
-                    }
-                });
+                        NotFoundException => StatusCodes.Status404NotFound,
+                        _ => StatusCodes.Status500InternalServerError
+                    };
+                    logger.LogError($"Something went wrong: {contextFeature.Error}");
+                    await context.Response.WriteAsync(new ErrorDetails()
+                    {
+                        StatusCode = context.Response.StatusCode,
+                        Message = contextFeature.Error.Message,
+                    }.ToString());
+                }
             });
-        }
+        });
     }
 }
