@@ -14,6 +14,12 @@ namespace Presentation.Controllers
             _serviceManager = serviceManager;
         }
 
+        [HttpGet]
+        public IActionResult GetCompanies()
+        {
+            var companies = _serviceManager.CompanyService.GetAllCompanies(trackChanges: false);
+            return Ok(companies);
+        }
         [HttpGet("{id:guid}")]
         public IActionResult GetCompany(Guid id)
         {

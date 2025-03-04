@@ -27,8 +27,16 @@ builder.Services.AddAutoMapper(typeof(Program));
 
 //end -- ultimate_api.Extensions
 
+//Config reponse
+builder.Services.AddControllers(config =>
+{
+    config.RespectBrowserAcceptHeader = true;
+    config.ReturnHttpNotAcceptable = true;
 
-builder.Services.AddControllers().AddApplicationPart(typeof(Presentation.AssemblyReference).Assembly);
+})
+.AddXmlDataContractSerializerFormatters()
+.AddCustomCSVFormatter()
+.AddApplicationPart(typeof(Presentation.AssemblyReference).Assembly);
 
 //end -- Add services to the container.
 

@@ -45,5 +45,9 @@ namespace ultimate_api.Extensions
         {
             services.AddDbContext<RepositoryContext>(opts => opts.UseNpgsql(configuration.GetConnectionString("postgreSqlConnection")));
         }
+        public static IMvcBuilder AddCustomCSVFormatter(this IMvcBuilder builder)
+        {
+            return builder.AddMvcOptions(config => config.OutputFormatters.Add(new CsvOutputFormatter()));
+        }
     }
 }
