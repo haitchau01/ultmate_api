@@ -30,3 +30,8 @@
     + Method Safety relates to whether a method changes the system state or not.
     + Method Idempotency relates to whether a method can be called multiple times without changing the result compared to calling it once.
     + Both concepts are crucial in API and system design, ensuring consistency and reliability in applications.
+
+4. Why use CreatedAtRoute?
+    + RESTful: When creating a new resource, 201 Created is the correct response code.
+    + Dynamic URL generation: No need to hardcode URLs, making the API easy to maintain.
+    + HATEOAS support: Clients can easily find the URL of new resources.
