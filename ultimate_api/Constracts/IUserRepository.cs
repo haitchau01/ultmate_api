@@ -6,5 +6,6 @@ namespace Constracts
     {
         IEnumerable<User> GetEmployees(Guid companyId, bool trackChanges);
         User GetUser(Guid companyId, Guid id, bool trackChanges);
+        void CreateUserForCompany(Guid companyId, User user);
     }
 }

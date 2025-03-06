@@ -39,5 +39,14 @@ namespace Service
             var companyDto = _mapper.Map<CompanyDTO>(company);
             return companyDto;
         }
+
+        public CompanyDTO CreateCompany(CompanyForCreationDTO company)
+        {
+            var companyEntity = _mapper.Map<Company>(company);
+            _repository.Company.CreateCompany(companyEntity);
+            _repository.Save();
+            var companyToReturn = _mapper.Map<CompanyDTO>(companyEntity);
+            return companyToReturn;
+        }
     }
 }

@@ -1,5 +1,6 @@
 using Constracts;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc;
 using NLog;
 using ultimate_api.Extensions;
 
@@ -26,6 +27,11 @@ builder.Services.ConfigureSqlContext(builder.Configuration);
 builder.Services.AddAutoMapper(typeof(Program));
 
 //end -- ultimate_api.Extensions
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
 
 //Config reponse
 builder.Services.AddControllers(config =>

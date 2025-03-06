@@ -7,6 +7,12 @@ namespace Repository
     {
         public UserRepository(RepositoryContext repositoryContext) : base(repositoryContext) { }
 
+        public void CreateUserForCompany(Guid companyId, User user)
+        {
+            user.CompanyId = companyId;
+            Create(user);
+        }
+
         public IEnumerable<User> GetEmployees(Guid companyId, bool trackChanges)
         {
             return FindByCondition(e => e.CompanyId.Equals(companyId), trackChanges).OrderBy(e => e.FirstName).ToList();
