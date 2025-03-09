@@ -12,6 +12,10 @@ namespace ultimate_api.AutoMaper
             CreateMap<User, UserDTO>().ForCtorParam("Fullname", opt => opt.MapFrom(x => string.Join(' ', x.FirstName, x.LastName)));
             CreateMap<CompanyForCreationDTO, Company>();
             CreateMap<UserForCreationDTO, User>();
+            CreateMap<UserForUpdateDTO, User>().ReverseMap();
+
+            CreateMap<CompanyForUpdateDTO, Company>();
+
         }
     }
 }

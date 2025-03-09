@@ -2,7 +2,9 @@
 using Constracts;
 using Entities.Models;
 using LoggerService;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Repository;
 using Service;
 using Service.Constracts;
@@ -23,7 +25,7 @@ namespace ultimate_api.Extensions
 
         public static void ConfigureIISIntegration(this IServiceCollection services)
         {
-            services.Configure<IISOptions>(options => {});
+            services.Configure<IISOptions>(options => { });
         }
 
         public static void ConfigureLoggerService(this IServiceCollection services)

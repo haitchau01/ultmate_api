@@ -21,11 +21,19 @@ namespace Presentation.Controllers
             var companies = _serviceManager.CompanyService.GetAllCompanies(trackChanges: false);
             return Ok(companies);
         }
+
         [HttpGet("{id:guid}")]
         public IActionResult GetCompany(Guid id)
         {
             var company = _serviceManager.CompanyService.GetCompany(id, trackChanges: false);
             return Ok(company);
+        }
+
+        [HttpGet("collection/({ids})", Name = "CompanyCollection")]
+        public IActionResult GetCompanyCollection([ModelBinder(BinderType = typeof(ArrayModelBinder))] IEnumerable<Guid> ids)
+        {
+            var companies = _serviceManager.CompanyService.GetByIds(ids, trackChanges: false);
+            return Ok(companies);
         }
 
         [HttpPost]
@@ -37,5 +45,31 @@ namespace Presentation.Controllers
             return CreatedAtRoute("CompanyById", new { id = createdCompany.Id },
             createdCompany);
         }
+
+        [HttpPost("collection")]
+        public IActionResult CreateCompanyCollection([FromBody] IEnumerable<CompanyForCreationDTO> companyCollection)
+        {
+            var result = _serviceManager.CompanyService.CreateCompanyCollection(companyCollection);
+            return CreatedAtRoute("CompanyCollection", new { result.ids }, result.companies);
+        }
+
+        [HttpDelete("{id:guid}")]
+        public IActionResult DeleteCompany(Guid id)
+        {
+            _serviceManager.CompanyService.DeleteCompany(id, trackChanges: false);
+
+            return NoContent();
+        }
+
+        [HttpPut("{id:guid}")]
+        public IActionResult UpdateCompany(Guid id, [FromBody] CompanyForUpdateDTO company)
+        {
+            if (company is null)
+                return BadRequest("CompanyForUpdateDTO   object is null");
+            _serviceManager.CompanyService.UpdateCompany(id, company, trackChanges: true);
+
+            return NoContent();
+        }
+
     }
 }

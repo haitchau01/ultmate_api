@@ -1,11 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Mvc;
 using Service.Constracts;
 using Shared.DataTransferObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Presentation.Controllers
 {
@@ -31,11 +27,43 @@ namespace Presentation.Controllers
         public IActionResult CreateUserForCompany(Guid companyId, [FromBody] UserForCreationDTO employee)
         {
             if (employee is null)
-                return BadRequest("EmployeeForCreationDto object is null");
+                return BadRequest("UserForCreationDTO object is null");
 
             var userToReturn = _serviceManager.UserService.CreateUserForCompany(companyId, employee, trackChanges: false);
 
             return CreatedAtRoute("GetUserForCompany", new { companyId, id = userToReturn.Id }, userToReturn);
+        }
+
+        [HttpDelete("{id:guid}")]
+        public IActionResult DeleteUserForCompany(Guid companyId, Guid id)
+        {
+            _serviceManager.UserService.DeleteUserForCompany(companyId, id, trackChanges: false);
+
+            return NoContent();
+        }
+
+        [HttpPut("{id:guid}")]
+        public IActionResult UpdateUserForCompany(Guid companyId, Guid id, [FromBody] UserForUpdateDTO user)
+        {
+            if (user is null)
+                return BadRequest("UserForUpdateDTO object is null");
+            _serviceManager.UserService.UpdateUserForCompany(companyId, id, user, compTrackChanges: false, empTrackChanges: true);
+
+            return NoContent();
+        }
+
+        [HttpPatch("{id:guid}")]
+        public IActionResult PartiallyUpdateUserForCompany(Guid companyId, Guid id, [FromBody] JsonPatchDocument<UserForUpdateDTO> patchDoc)
+        {
+            if (patchDoc is null)
+                return BadRequest("patchDoc object sent from client is null.");
+
+            var result = _serviceManager.UserService.GetUserForPatch(companyId, id, compTrackChanges: false, empTrackChanges: true);
+
+            patchDoc.ApplyTo(result.userToPatch);
+            _serviceManager.UserService.SaveChangesForPatch(result.userToPatch, result.userEntity);
+
+            return NoContent();
         }
     }
 }

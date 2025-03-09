@@ -13,7 +13,10 @@ namespace Repository
             Create(user);
         }
 
-        public IEnumerable<User> GetEmployees(Guid companyId, bool trackChanges)
+        public void DeleteUser(User user) => Delete(user);
+
+
+        public IEnumerable<User> GetUsers(Guid companyId, bool trackChanges)
         {
             return FindByCondition(e => e.CompanyId.Equals(companyId), trackChanges).OrderBy(e => e.FirstName).ToList();
         }
@@ -22,5 +25,6 @@ namespace Repository
         {
             return FindByCondition(usr => usr.CompanyId.Equals(companyId) && usr.Id.Equals(id), trackChanges).SingleOrDefault();
         }
+
     }
 }

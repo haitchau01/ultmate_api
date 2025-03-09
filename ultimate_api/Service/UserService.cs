@@ -28,7 +28,7 @@ namespace Service
             if (company is null)
                 throw new CompanyNotFoundException(companyId);
 
-            var userFromDb = _repository.User.GetEmployees(companyId, trackChanges);
+            var userFromDb = _repository.User.GetUsers(companyId, trackChanges);
             var userDTOs = _mapper.Map<IEnumerable<UserDTO>>(userFromDb);
             return userDTOs;
         }
@@ -68,5 +68,48 @@ namespace Service
 
             return userToReturn;
         }
+        public void DeleteUserForCompany(Guid companyId, Guid id, bool trackChanges)
+        {
+            var company = _repository.Company.GetCompany(companyId, trackChanges); if (company is null)
+                throw new CompanyNotFoundException(companyId);
+
+            var userForCompany = _repository.User.GetUser(companyId, id, trackChanges);
+            if (userForCompany is null)
+                throw new UserNotFoundException(id);
+
+            _repository.User.DeleteUser(userForCompany);
+            _repository.Save();
+        }
+
+        public void UpdateUserForCompany(Guid companyId, Guid id, UserForUpdateDTO userForUpdateDTO, bool compTrackChanges, bool empTrackChanges)
+        {
+            var company = _repository.Company.GetCompany(companyId, compTrackChanges); if (company is null)
+                throw new CompanyNotFoundException(companyId);
+
+            var userEntity = _repository.User.GetUser(companyId, id, empTrackChanges);
+            if (userEntity is null)
+                throw new UserNotFoundException(id);
+
+            _mapper.Map(userForUpdateDTO, userEntity);
+            _repository.Save();
+        }
+
+        public (UserForUpdateDTO userToPatch, User userEntity) GetUserForPatch(Guid companyId, Guid id, bool compTrackChanges, bool empTrackChanges)
+        {
+            var company = _repository.Company.GetCompany(companyId, compTrackChanges); if (company is null)
+                throw new CompanyNotFoundException(companyId);
+            var userEntity = _repository.User.GetUser(companyId, id, empTrackChanges);
+            if (userEntity is null) throw new UserNotFoundException(companyId);
+
+            var userToPatch = _mapper.Map<UserForUpdateDTO>(userEntity);
+            return (userToPatch, userEntity);
+        }
+
+        public void SaveChangesForPatch(UserForUpdateDTO userToPatch, User userEntity)
+        {
+            _mapper.Map(userToPatch, userEntity);
+            _repository.Save();
+        }
+
     }
 }
