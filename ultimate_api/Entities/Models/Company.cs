@@ -18,6 +18,6 @@ namespace Entities.Models
 
         public string? Country { get; set; }
 
-        public ICollection<User>? Employees { get; set; }
+        public ICollection<User>? Users { get; set; }
     }
 }

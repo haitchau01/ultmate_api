@@ -1,4 +1,6 @@
 ﻿using Constracts;
+using Entities.Models;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Repository
 {
@@ -21,7 +23,10 @@ namespace Repository
 
         public IUserRepository User => _userRepository.Value;
 
-        public void Save() => _repositoryContext.SaveChanges();
+        public void Save()
+        {
+            _repositoryContext.SaveChanges();
+        }
 
     }
 }

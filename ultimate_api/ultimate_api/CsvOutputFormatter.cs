@@ -22,8 +22,7 @@ namespace ultimate_api
             }
             return false;
         }
-        public override async Task WriteResponseBodyAsync(OutputFormatterWriteContext
-       context, Encoding selectedEncoding)
+        public override async Task WriteResponseBodyAsync(OutputFormatterWriteContext context, Encoding selectedEncoding)
         {
             var response = context.HttpContext.Response;
             var buffer = new StringBuilder();

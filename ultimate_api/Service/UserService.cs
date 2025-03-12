@@ -59,6 +59,7 @@ namespace Service
             if (company is null)
                 throw new CompanyNotFoundException(companyId);
 
+            userForCreation.DateOfBirth = userForCreation.DateOfBirth.ToUniversalTime();
             var userEntity = _mapper.Map<User>(userForCreation);
 
             _repository.User.CreateUserForCompany(companyId, userEntity);

@@ -24,12 +24,15 @@ namespace Presentation.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateUserForCompany(Guid companyId, [FromBody] UserForCreationDTO employee)
+        public IActionResult CreateUserForCompany(Guid companyId, [FromBody] UserForCreationDTO user)
         {
-            if (employee is null)
+            if (user is null)
                 return BadRequest("UserForCreationDTO object is null");
 
-            var userToReturn = _serviceManager.UserService.CreateUserForCompany(companyId, employee, trackChanges: false);
+            if (!ModelState.IsValid)
+                return UnprocessableEntity(ModelState);
+            var userToReturn = _serviceManager.UserService.CreateUserForCompany(companyId, user, trackChanges: false);
+
 
             return CreatedAtRoute("GetUserForCompany", new { companyId, id = userToReturn.Id }, userToReturn);
         }
@@ -47,6 +50,9 @@ namespace Presentation.Controllers
         {
             if (user is null)
                 return BadRequest("UserForUpdateDTO object is null");
+            if (!ModelState.IsValid)
+                return UnprocessableEntity(ModelState);
+
             _serviceManager.UserService.UpdateUserForCompany(companyId, id, user, compTrackChanges: false, empTrackChanges: true);
 
             return NoContent();
@@ -60,7 +66,13 @@ namespace Presentation.Controllers
 
             var result = _serviceManager.UserService.GetUserForPatch(companyId, id, compTrackChanges: false, empTrackChanges: true);
 
-            patchDoc.ApplyTo(result.userToPatch);
+            patchDoc.ApplyTo(result.userToPatch, ModelState);
+
+            TryValidateModel(result.userToPatch);
+
+            if (!ModelState.IsValid)
+                return UnprocessableEntity(ModelState);
+
             _serviceManager.UserService.SaveChangesForPatch(result.userToPatch, result.userEntity);
 
             return NoContent();
