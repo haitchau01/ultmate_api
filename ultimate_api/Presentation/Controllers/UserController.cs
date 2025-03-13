@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Service.Constracts;
 using Shared.DataTransferObjects;
+using System.Threading.Tasks;
 
 namespace Presentation.Controllers
 {
@@ -17,54 +18,54 @@ namespace Presentation.Controllers
         }
 
         [HttpGet("{id:guid}", Name = "GetUserForCompany")]
-        public IActionResult GetUserForCompany(Guid companyId, Guid id)
+        public async Task<IActionResult> GetUserForCompany(Guid companyId, Guid id)
         {
-            var user = _serviceManager.UserService.GetUser(companyId, id, trackChanges: false);
+            var user = await _serviceManager.UserService.GetUserAsync(companyId, id, trackChanges: false);
             return Ok(user);
         }
 
         [HttpPost]
-        public IActionResult CreateUserForCompany(Guid companyId, [FromBody] UserForCreationDTO user)
+        public async Task<IActionResult> CreateUserForCompany(Guid companyId, [FromBody] UserForCreationDTO user)
         {
             if (user is null)
                 return BadRequest("UserForCreationDTO object is null");
 
             if (!ModelState.IsValid)
                 return UnprocessableEntity(ModelState);
-            var userToReturn = _serviceManager.UserService.CreateUserForCompany(companyId, user, trackChanges: false);
+            var userToReturn = await _serviceManager.UserService.CreateUserForCompanyAsync(companyId, user, trackChanges: false);
 
 
             return CreatedAtRoute("GetUserForCompany", new { companyId, id = userToReturn.Id }, userToReturn);
         }
 
         [HttpDelete("{id:guid}")]
-        public IActionResult DeleteUserForCompany(Guid companyId, Guid id)
+        public async Task<IActionResult> DeleteUserForCompany(Guid companyId, Guid id)
         {
-            _serviceManager.UserService.DeleteUserForCompany(companyId, id, trackChanges: false);
+            await _serviceManager.UserService.DeleteUserForCompanyAsync(companyId, id, trackChanges: false);
 
             return NoContent();
         }
 
         [HttpPut("{id:guid}")]
-        public IActionResult UpdateUserForCompany(Guid companyId, Guid id, [FromBody] UserForUpdateDTO user)
+        public async Task<IActionResult> UpdateUserForCompany(Guid companyId, Guid id, [FromBody] UserForUpdateDTO user)
         {
             if (user is null)
                 return BadRequest("UserForUpdateDTO object is null");
             if (!ModelState.IsValid)
                 return UnprocessableEntity(ModelState);
 
-            _serviceManager.UserService.UpdateUserForCompany(companyId, id, user, compTrackChanges: false, empTrackChanges: true);
+            await _serviceManager.UserService.UpdateUserForCompanyAsync(companyId, id, user, compTrackChanges: false, empTrackChanges: true);
 
             return NoContent();
         }
 
         [HttpPatch("{id:guid}")]
-        public IActionResult PartiallyUpdateUserForCompany(Guid companyId, Guid id, [FromBody] JsonPatchDocument<UserForUpdateDTO> patchDoc)
+        public async Task<IActionResult> PartiallyUpdateUserForCompany(Guid companyId, Guid id, [FromBody] JsonPatchDocument<UserForUpdateDTO> patchDoc)
         {
             if (patchDoc is null)
                 return BadRequest("patchDoc object sent from client is null.");
 
-            var result = _serviceManager.UserService.GetUserForPatch(companyId, id, compTrackChanges: false, empTrackChanges: true);
+            var result = await _serviceManager.UserService.GetUserForPatchAsync(companyId, id, compTrackChanges: false, empTrackChanges: true);
 
             patchDoc.ApplyTo(result.userToPatch, ModelState);
 
@@ -73,7 +74,7 @@ namespace Presentation.Controllers
             if (!ModelState.IsValid)
                 return UnprocessableEntity(ModelState);
 
-            _serviceManager.UserService.SaveChangesForPatch(result.userToPatch, result.userEntity);
+            await _serviceManager.UserService.SaveChangesForPatchAsync(result.userToPatch, result.userEntity);
 
             return NoContent();
         }

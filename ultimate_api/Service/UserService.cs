@@ -4,6 +4,7 @@ using Entities.Exceptions;
 using Entities.Models;
 using Service.Constracts;
 using Shared.DataTransferObjects;
+using System.Threading.Tasks;
 
 namespace Service
 {
@@ -22,26 +23,26 @@ namespace Service
             _logger = logger;
             _mapper = mapper;
         }
-        public IEnumerable<UserDTO> GetUsers(Guid companyId, bool trackChanges)
+        public async Task<IEnumerable<UserDTO>> GetUsersAsync(Guid companyId, bool trackChanges)
         {
-            var company = _repository.Company.GetCompany(companyId, trackChanges);
+            var company = await _repository.Company.GetCompanyAsync(companyId, trackChanges);
             if (company is null)
                 throw new CompanyNotFoundException(companyId);
 
-            var userFromDb = _repository.User.GetUsers(companyId, trackChanges);
+            var userFromDb = await _repository.User.GetUsersAsync(companyId, trackChanges);
             var userDTOs = _mapper.Map<IEnumerable<UserDTO>>(userFromDb);
             return userDTOs;
         }
-        public UserDTO GetUser(Guid companyId, Guid id, bool trackChanges)
+        public async Task<UserDTO> GetUserAsync(Guid companyId, Guid id, bool trackChanges)
         {
-            var company = _repository.Company.GetCompany(companyId, trackChanges);
+            var company = await _repository.Company.GetCompanyAsync(companyId, trackChanges);
 
             if (company is null)
             {
                 throw new CompanyNotFoundException(companyId);
             }
 
-            var userDb = _repository.User.GetUser(companyId, id, trackChanges);
+            var userDb = await _repository.User.GetUserAsync(companyId, id, trackChanges);
 
             if (userDb is null)
             {
@@ -53,9 +54,9 @@ namespace Service
             return user;
         }
 
-        public UserDTO CreateUserForCompany(Guid companyId, UserForCreationDTO userForCreation, bool trackChanges)
+        public async Task<UserDTO> CreateUserForCompanyAsync(Guid companyId, UserForCreationDTO userForCreation, bool trackChanges)
         {
-            var company = _repository.Company.GetCompany(companyId, trackChanges);
+            var company = await _repository.Company.GetCompanyAsync(companyId, trackChanges);
             if (company is null)
                 throw new CompanyNotFoundException(companyId);
 
@@ -63,53 +64,53 @@ namespace Service
             var userEntity = _mapper.Map<User>(userForCreation);
 
             _repository.User.CreateUserForCompany(companyId, userEntity);
-            _repository.Save();
+            await _repository.SaveAsync();
 
             var userToReturn = _mapper.Map<UserDTO>(userEntity);
 
             return userToReturn;
         }
-        public void DeleteUserForCompany(Guid companyId, Guid id, bool trackChanges)
+        public async Task DeleteUserForCompanyAsync(Guid companyId, Guid id, bool trackChanges)
         {
-            var company = _repository.Company.GetCompany(companyId, trackChanges); if (company is null)
+            var company = await _repository.Company.GetCompanyAsync(companyId, trackChanges); if (company is null)
                 throw new CompanyNotFoundException(companyId);
 
-            var userForCompany = _repository.User.GetUser(companyId, id, trackChanges);
+            var userForCompany = await _repository.User.GetUserAsync(companyId, id, trackChanges);
             if (userForCompany is null)
                 throw new UserNotFoundException(id);
 
             _repository.User.DeleteUser(userForCompany);
-            _repository.Save();
+            await _repository.SaveAsync();
         }
 
-        public void UpdateUserForCompany(Guid companyId, Guid id, UserForUpdateDTO userForUpdateDTO, bool compTrackChanges, bool empTrackChanges)
+        public async Task UpdateUserForCompanyAsync(Guid companyId, Guid id, UserForUpdateDTO userForUpdateDTO, bool compTrackChanges, bool empTrackChanges)
         {
-            var company = _repository.Company.GetCompany(companyId, compTrackChanges); if (company is null)
+            var company = await _repository.Company.GetCompanyAsync(companyId, compTrackChanges); if (company is null)
                 throw new CompanyNotFoundException(companyId);
 
-            var userEntity = _repository.User.GetUser(companyId, id, empTrackChanges);
+            var userEntity = await _repository.User.GetUserAsync(companyId, id, empTrackChanges);
             if (userEntity is null)
                 throw new UserNotFoundException(id);
 
             _mapper.Map(userForUpdateDTO, userEntity);
-            _repository.Save();
+            await _repository.SaveAsync();
         }
 
-        public (UserForUpdateDTO userToPatch, User userEntity) GetUserForPatch(Guid companyId, Guid id, bool compTrackChanges, bool empTrackChanges)
+        public async Task<(UserForUpdateDTO userToPatch, User userEntity)> GetUserForPatchAsync(Guid companyId, Guid id, bool compTrackChanges, bool empTrackChanges)
         {
-            var company = _repository.Company.GetCompany(companyId, compTrackChanges); if (company is null)
+            var company = await _repository.Company.GetCompanyAsync(companyId, compTrackChanges); if (company is null)
                 throw new CompanyNotFoundException(companyId);
-            var userEntity = _repository.User.GetUser(companyId, id, empTrackChanges);
+            var userEntity = await _repository.User.GetUserAsync(companyId, id, empTrackChanges);
             if (userEntity is null) throw new UserNotFoundException(companyId);
 
             var userToPatch = _mapper.Map<UserForUpdateDTO>(userEntity);
             return (userToPatch, userEntity);
         }
 
-        public void SaveChangesForPatch(UserForUpdateDTO userToPatch, User userEntity)
+        public async Task SaveChangesForPatchAsync(UserForUpdateDTO userToPatch, User userEntity)
         {
             _mapper.Map(userToPatch, userEntity);
-            _repository.Save();
+            await _repository.SaveAsync();
         }
 
     }

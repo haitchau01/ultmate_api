@@ -4,6 +4,6 @@
     {
         ICompanyRepository Company { get; }
         IUserRepository User { get; }
-        void Save();
+        Task SaveAsync();
     }
 }

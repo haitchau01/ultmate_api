@@ -1,5 +1,7 @@
 ﻿using Constracts;
 using Entities.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace Repository
 {
@@ -16,14 +18,14 @@ namespace Repository
         public void DeleteUser(User user) => Delete(user);
 
 
-        public IEnumerable<User> GetUsers(Guid companyId, bool trackChanges)
+        public async Task<IEnumerable<User>> GetUsersAsync(Guid companyId, bool trackChanges)
         {
-            return FindByCondition(e => e.CompanyId.Equals(companyId), trackChanges).OrderBy(e => e.FirstName).ToList();
+            return await FindByCondition(e => e.CompanyId.Equals(companyId), trackChanges).OrderBy(e => e.FirstName).ToListAsync();
         }
 
-        public User? GetUser(Guid companyId, Guid id, bool trackChanges)
+        public async Task<User?> GetUserAsync(Guid companyId, Guid id, bool trackChanges)
         {
-            return FindByCondition(usr => usr.CompanyId.Equals(companyId) && usr.Id.Equals(id), trackChanges).SingleOrDefault();
+            return await FindByCondition(usr => usr.CompanyId.Equals(companyId) && usr.Id.Equals(id), trackChanges).SingleOrDefaultAsync();
         }
 
     }

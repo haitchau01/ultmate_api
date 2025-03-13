@@ -4,19 +4,19 @@ using Shared.DataTransferObjects;
 namespace Service.Constracts
 {
     public interface IUserService {
-        IEnumerable<UserDTO> GetUsers(Guid companyId, bool trackChanges);
+        Task<IEnumerable<UserDTO>> GetUsersAsync(Guid companyId, bool trackChanges);
 
-        UserDTO GetUser(Guid companyId, Guid id, bool trackChanges);
+        Task<UserDTO> GetUserAsync(Guid companyId, Guid id, bool trackChanges);
 
-        UserDTO CreateUserForCompany(Guid companyId, UserForCreationDTO employeeForCreation, bool trackChanges);
+        Task<UserDTO> CreateUserForCompanyAsync(Guid companyId, UserForCreationDTO employeeForCreation, bool trackChanges);
 
-        void DeleteUserForCompany(Guid companyId, Guid id, bool trackChanges);
+        Task DeleteUserForCompanyAsync(Guid companyId, Guid id, bool trackChanges);
 
-        void UpdateUserForCompany(Guid companyId, Guid id, UserForUpdateDTO userForUpdate, bool compTrackChanges, bool empTrackChanges);
+        Task UpdateUserForCompanyAsync(Guid companyId, Guid id, UserForUpdateDTO userForUpdate, bool compTrackChanges, bool empTrackChanges);
 
-        (UserForUpdateDTO userToPatch, User userEntity) GetUserForPatch(Guid companyId, Guid id, bool compTrackChanges, bool empTrackChanges);
+        Task<(UserForUpdateDTO userToPatch, User userEntity)> GetUserForPatchAsync(Guid companyId, Guid id, bool compTrackChanges, bool empTrackChanges);
 
-        void SaveChangesForPatch(UserForUpdateDTO userToPatch, User userEntity);
+        Task SaveChangesForPatchAsync(UserForUpdateDTO userToPatch, User userEntity);
 
     }
 
