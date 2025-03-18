@@ -1,11 +1,10 @@
 ﻿using ActionFilters;
 using Entities.Exceptions;
-using Entities.Models;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Service.Constracts;
 using Shared.DataTransferObjects;
-using System.Threading.Tasks;
+using Shared.Parameters;
 
 namespace Presentation.Controllers
 {
@@ -18,6 +17,13 @@ namespace Presentation.Controllers
         public UserController(IServiceManager service)
         {
             _serviceManager = service;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUsersForCompany(Guid companyId, [FromQuery] UserParameters userParameters)
+        {
+            var users = await _serviceManager.UserService.GetUsersAsync(companyId, userParameters, trackChanges: false);
+            return Ok(users);
         }
 
         [HttpGet("{id:guid}", Name = "GetUserForCompany")]

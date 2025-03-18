@@ -4,6 +4,7 @@ using Entities.Exceptions;
 using Entities.Models;
 using Service.Constracts;
 using Shared.DataTransferObjects;
+using Shared.Parameters;
 using System.Threading.Tasks;
 
 namespace Service
@@ -90,7 +91,7 @@ namespace Service
 
             var userToPatch = _mapper.Map<UserForUpdateDTO>(userDb);
 
-            return (employeeToPatch: userToPatch, employeeEntity: userDb);
+            return (userToPatch: userToPatch, userEntity: userDb);
 
         }
 
@@ -98,6 +99,15 @@ namespace Service
         {
             _mapper.Map(userToPatch, userEntity);
             await _repository.SaveAsync();
+        }
+        public async Task<IEnumerable<UserDTO>> GetUsersAsync(Guid companyId, UserParameters userParameters, bool trackChanges)
+        {
+            await CheckIfCompanyExists(companyId, trackChanges);
+
+            var userFromDb = await _repository.User.GetUsersAsync(companyId, userParameters, trackChanges);
+            var userDto = _mapper.Map<IEnumerable<UserDTO>>(userFromDb);
+
+            return userDto;
         }
         private async Task CheckIfCompanyExists(Guid companyId, bool trackChanges)
         {
@@ -112,6 +122,5 @@ namespace Service
 
             return userDb;
         }
-
     }
 }

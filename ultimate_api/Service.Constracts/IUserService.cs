@@ -1,14 +1,20 @@
 ﻿using Entities.Models;
 using Shared.DataTransferObjects;
+using Shared.Parameters;
 
 namespace Service.Constracts
 {
     public interface IUserService {
+
+
+
+        Task<IEnumerable<UserDTO>> GetUsersAsync(Guid companyId, UserParameters userParameters, bool trackChanges);
+
         Task<IEnumerable<UserDTO>> GetUsersAsync(Guid companyId, bool trackChanges);
 
         Task<UserDTO> GetUserAsync(Guid companyId, Guid id, bool trackChanges);
 
-        Task<UserDTO> CreateUserForCompanyAsync(Guid companyId, UserForCreationDTO employeeForCreation, bool trackChanges);
+        Task<UserDTO> CreateUserForCompanyAsync(Guid companyId, UserForCreationDTO userForCreation, bool trackChanges);
 
         Task DeleteUserForCompanyAsync(Guid companyId, Guid id, bool trackChanges);
 

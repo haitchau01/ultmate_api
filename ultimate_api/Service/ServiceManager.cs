@@ -8,16 +8,16 @@ namespace Service
     {
         private readonly Lazy<ICompanyService> _companyService;
 
-        private readonly Lazy<IUserService> _employeeService;
+        private readonly Lazy<IUserService> _userService;
 
         public ServiceManager(IRepositoryManager repositoryManager, ILoggerManager logger, IMapper mapper)
         {
             _companyService = new Lazy<ICompanyService>(() => new CompanyService(repositoryManager, logger, mapper));
-            _employeeService = new Lazy<IUserService>(() => new UserService(repositoryManager, logger, mapper));
+            _userService = new Lazy<IUserService>(() => new UserService(repositoryManager, logger, mapper));
         }
 
         public ICompanyService CompanyService => _companyService.Value;
 
-        public IUserService UserService => _employeeService.Value;
+        public IUserService UserService => _userService.Value;
     }
 }

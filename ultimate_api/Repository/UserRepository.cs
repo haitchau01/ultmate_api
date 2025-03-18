@@ -1,8 +1,7 @@
 ﻿using Constracts;
 using Entities.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
-
+using Shared.Parameters;
 namespace Repository
 {
     public class UserRepository : RepositoryBase<User>, IUserRepository
@@ -17,6 +16,13 @@ namespace Repository
 
         public void DeleteUser(User user) => Delete(user);
 
+        public async Task<IEnumerable<User>> GetUsersAsync(Guid companyId, UserParameters userParameters, bool trackChanges)
+        {
+           return await FindByCondition(e => e.CompanyId.Equals(companyId), trackChanges).OrderBy(e => e.FirstName)
+                .Skip((userParameters.PageNumber - 1) * userParameters.PageSize)
+                .Take(userParameters.PageSize)
+                .ToListAsync();
+        }
 
         public async Task<IEnumerable<User>> GetUsersAsync(Guid companyId, bool trackChanges)
         {
