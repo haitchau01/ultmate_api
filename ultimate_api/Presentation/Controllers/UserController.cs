@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.JsonPatch;
+﻿using ActionFilters;
+using Entities.Exceptions;
+using Entities.Models;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Service.Constracts;
 using Shared.DataTransferObjects;
@@ -25,6 +28,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPost]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateUserForCompany(Guid companyId, [FromBody] UserForCreationDTO user)
         {
             if (user is null)
@@ -47,6 +51,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPut("{id:guid}")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateUserForCompany(Guid companyId, Guid id, [FromBody] UserForUpdateDTO user)
         {
             if (user is null)
