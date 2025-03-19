@@ -5,6 +5,7 @@ using Entities.Models;
 using Service.Constracts;
 using Shared.DataTransferObjects;
 using Shared.Parameters;
+using Shared.RequestFeatures;
 using System.Threading.Tasks;
 
 namespace Service
@@ -100,26 +101,29 @@ namespace Service
             _mapper.Map(userToPatch, userEntity);
             await _repository.SaveAsync();
         }
-        public async Task<IEnumerable<UserDTO>> GetUsersAsync(Guid companyId, UserParameters userParameters, bool trackChanges)
+
+        public async Task<(IEnumerable<UserDTO> users, MetaData metaData)> GetUsersAsync(Guid companyId, UserParameters userParameters, bool trackChanges)
         {
+            if (!userParameters.ValidAgeRange)
+                throw new MaxAgeRangeBadRequestException();
             await CheckIfCompanyExists(companyId, trackChanges);
 
-            var userFromDb = await _repository.User.GetUsersAsync(companyId, userParameters, trackChanges);
-            var userDto = _mapper.Map<IEnumerable<UserDTO>>(userFromDb);
-
-            return userDto;
+            var usersWithMetaData = await _repository.User.GetUsersAsync(companyId, userParameters, trackChanges);
+            var userDTO = _mapper.Map<IEnumerable<UserDTO>>(usersWithMetaData);
+            return (users: userDTO, metaData: usersWithMetaData.MetaData);
         }
+
         private async Task CheckIfCompanyExists(Guid companyId, bool trackChanges)
         {
             var company = await _repository.Company.GetCompanyAsync(companyId, trackChanges); if (company is null)
                 throw new CompanyNotFoundException(companyId);
         }
+
         private async Task<User> GetUserForCompanyAndCheckIfItExists(Guid companyId, Guid id, bool trackChanges)
         {
             var userDb = await _repository.User.GetUserAsync(companyId, id, trackChanges);
             if (userDb is null)
                 throw new UserNotFoundException(id);
-
             return userDb;
         }
     }

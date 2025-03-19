@@ -2,6 +2,7 @@
 using Entities.Models;
 using Microsoft.EntityFrameworkCore;
 using Shared.Parameters;
+using Shared.RequestFeatures;
 namespace Repository
 {
     public class UserRepository : RepositoryBase<User>, IUserRepository
@@ -16,12 +17,15 @@ namespace Repository
 
         public void DeleteUser(User user) => Delete(user);
 
-        public async Task<IEnumerable<User>> GetUsersAsync(Guid companyId, UserParameters userParameters, bool trackChanges)
+        public async Task<PagedList<User>> GetUsersAsync(Guid companyId, UserParameters userParameters, bool trackChanges)
         {
-           return await FindByCondition(e => e.CompanyId.Equals(companyId), trackChanges).OrderBy(e => e.FirstName)
+            var users = await FindByCondition(e => e.CompanyId.Equals(companyId) && ((DateTime.UtcNow.Year - e.DateOfBirth.Value.Year) >= userParameters.MinAge && (DateTime.UtcNow.Year - e.DateOfBirth.Value.Year) <= userParameters.MaxAge), trackChanges)
+                .OrderBy(e => e.FirstName)
                 .Skip((userParameters.PageNumber - 1) * userParameters.PageSize)
-                .Take(userParameters.PageSize)
-                .ToListAsync();
+                .Take(userParameters.PageSize).ToListAsync();
+
+            var count = await FindByCondition(e => e.CompanyId.Equals(companyId), trackChanges).CountAsync();
+            return new PagedList<User>(users, count, userParameters.PageNumber, userParameters.PageSize);
         }
 
         public async Task<IEnumerable<User>> GetUsersAsync(Guid companyId, bool trackChanges)

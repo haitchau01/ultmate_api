@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Service.Constracts;
 using Shared.DataTransferObjects;
 using Shared.Parameters;
+using System.Text.Json;
 
 namespace Presentation.Controllers
 {
@@ -22,8 +23,9 @@ namespace Presentation.Controllers
         [HttpGet]
         public async Task<IActionResult> GetUsersForCompany(Guid companyId, [FromQuery] UserParameters userParameters)
         {
-            var users = await _serviceManager.UserService.GetUsersAsync(companyId, userParameters, trackChanges: false);
-            return Ok(users);
+            var pagedResult = await _serviceManager.UserService.GetUsersAsync(companyId, userParameters, trackChanges: false);
+            Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(pagedResult.metaData));
+            return Ok(pagedResult.users);
         }
 
         [HttpGet("{id:guid}", Name = "GetUserForCompany")]

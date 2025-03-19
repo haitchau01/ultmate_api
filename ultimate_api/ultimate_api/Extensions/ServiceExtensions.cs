@@ -17,9 +17,11 @@ namespace ultimate_api.Extensions
         {
             services.AddCors(options =>
             {
-                options.AddPolicy("CorsPolicy", builder => builder.AllowAnyOrigin() //WithOrigins("https://example.com")
-                                                                  .AllowAnyMethod() //WithMethods("POST", "GET") 
-                                                                  .AllowAnyHeader()); //WithHeaders("accept", "contenttype")
+                options.AddPolicy("CorsPolicy", builder =>
+                builder.AllowAnyOrigin() //WithOrigins("https://example.com")
+                .AllowAnyMethod() //WithMethods("POST", "GET") 
+                .AllowAnyHeader()
+                .WithExposedHeaders("X-Pagination"));
             });
         }
 
