@@ -12,8 +12,8 @@ using Repository;
 namespace ultimate_api.Migrations
 {
     [DbContext(typeof(RepositoryContext))]
-    [Migration("20250312131451_Updateeee")]
-    partial class Updateeee
+    [Migration("20250319155901_AddDbToHost")]
+    partial class AddDbToHost
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -138,7 +138,7 @@ namespace ultimate_api.Migrations
             modelBuilder.Entity("Entities.Models.User", b =>
                 {
                     b.HasOne("Entities.Models.Company", null)
-                        .WithMany("Employees")
+                        .WithMany("Users")
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -150,7 +150,7 @@ namespace ultimate_api.Migrations
 
             modelBuilder.Entity("Entities.Models.Company", b =>
                 {
-                    b.Navigation("Employees");
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("Entities.Models.User", b =>

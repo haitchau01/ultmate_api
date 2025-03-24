@@ -1,6 +1,7 @@
 ﻿using Constracts;
 using Entities.Models;
 using Microsoft.EntityFrameworkCore;
+using Repository.Extensions;
 using Shared.Parameters;
 using Shared.RequestFeatures;
 namespace Repository
@@ -19,7 +20,9 @@ namespace Repository
 
         public async Task<PagedList<User>> GetUsersAsync(Guid companyId, UserParameters userParameters, bool trackChanges)
         {
-            var users = await FindByCondition(e => e.CompanyId.Equals(companyId) && ((DateTime.UtcNow.Year - e.DateOfBirth.Value.Year) >= userParameters.MinAge && (DateTime.UtcNow.Year - e.DateOfBirth.Value.Year) <= userParameters.MaxAge), trackChanges)
+            var users = await FindByCondition(e => e.CompanyId.Equals(companyId), trackChanges)
+                .FilterUsers(userParameters.MinAge, userParameters.MaxAge)
+                .Search(userParameters.SearchTerm)
                 .OrderBy(e => e.FirstName)
                 .Skip((userParameters.PageNumber - 1) * userParameters.PageSize)
                 .Take(userParameters.PageSize).ToListAsync();
