@@ -24,6 +24,7 @@ namespace Repository
                 .FilterUsers(userParameters.MinAge, userParameters.MaxAge)
                 .Search(userParameters.SearchTerm)
                 .OrderBy(e => e.FirstName)
+                .Sort(userParameters.OrderBy)
                 .Skip((userParameters.PageNumber - 1) * userParameters.PageSize)
                 .Take(userParameters.PageSize).ToListAsync();
 
