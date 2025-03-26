@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Options;
 using NLog;
+using Service;
+using Shared.DataTransferObjects;
 using ultimate_api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +30,7 @@ builder.Services.ConfigureServiceManager();
 builder.Services.ConfigureSqlContext(builder.Configuration);
 builder.Services.AddAutoMapper(typeof(Program));
 
+builder.Services.AddScoped<IDataShaper<UserDTO>, DataShaper<UserDTO>>();
 //end -- ultimate_api.Extensions
 //action filter
 builder.Services.AddScoped<ValidationFilterAttribute>();

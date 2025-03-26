@@ -6,7 +6,7 @@ using Service.Constracts;
 using Shared.DataTransferObjects;
 using Shared.Parameters;
 using Shared.RequestFeatures;
-using System.Threading.Tasks;
+using System.Dynamic;
 
 namespace Service
 {
@@ -18,12 +18,14 @@ namespace Service
 
         private readonly IMapper _mapper;
 
+        private readonly IDataShaper<UserDTO> _dataShaper;
 
-        public UserService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper)
+        public UserService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, IDataShaper<UserDTO> dataShaper)
         {
             _repository = repository;
             _logger = logger;
             _mapper = mapper;
+            _dataShaper = dataShaper;
         }
         public async Task<IEnumerable<UserDTO>> GetUsersAsync(Guid companyId, bool trackChanges)
         {
@@ -102,15 +104,18 @@ namespace Service
             await _repository.SaveAsync();
         }
 
-        public async Task<(IEnumerable<UserDTO> users, MetaData metaData)> GetUsersAsync(Guid companyId, UserParameters userParameters, bool trackChanges)
+        public async Task<(IEnumerable<ExpandoObject> users, MetaData metaData)> GetUsersAsync(Guid companyId, UserParameters userParameters, bool trackChanges)
         {
             if (!userParameters.ValidAgeRange)
                 throw new MaxAgeRangeBadRequestException();
             await CheckIfCompanyExists(companyId, trackChanges);
 
             var usersWithMetaData = await _repository.User.GetUsersAsync(companyId, userParameters, trackChanges);
+
             var userDTO = _mapper.Map<IEnumerable<UserDTO>>(usersWithMetaData);
-            return (users: userDTO, metaData: usersWithMetaData.MetaData);
+            var shapedData = _dataShaper.ShapeData(userDTO, userParameters.Fields);
+
+            return (employees: shapedData, metaData: usersWithMetaData.MetaData);
         }
 
         private async Task CheckIfCompanyExists(Guid companyId, bool trackChanges)

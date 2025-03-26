@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Shared.Parameters
+﻿namespace Shared.Parameters
 {
     public abstract class RequestParameters
     {
@@ -23,5 +17,6 @@ namespace Shared.Parameters
             }
         }
         public string? OrderBy { get; set; }
+        public string? Fields { get; set; }
     }
 }
