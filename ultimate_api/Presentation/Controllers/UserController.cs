@@ -1,7 +1,8 @@
-﻿using ActionFilters;
-using Entities.Exceptions;
+﻿using Entities.Exceptions;
+using Entities.Models;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Presentation.ActionFilters;
 using Service.Constracts;
 using Shared.DataTransferObjects;
 using Shared.Parameters;
@@ -21,11 +22,14 @@ namespace Presentation.Controllers
         }
 
         [HttpGet]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> GetUsersForCompany(Guid companyId, [FromQuery] UserParameters userParameters)
         {
-            var pagedResult = await _serviceManager.UserService.GetUsersAsync(companyId, userParameters, trackChanges: false);
-            Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(pagedResult.metaData));
-            return Ok(pagedResult.users);
+            var linkParams = new LinkParameters(userParameters, HttpContext);
+            var result = await _serviceManager.UserService.GetUsersAsync(companyId, linkParams, trackChanges: false);
+            Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(result.metaData));
+
+            return result.linkResponse.HasLinks ? Ok(result.linkResponse.LinkedEntities) : Ok(result.linkResponse.ShapedEntities);
         }
 
         [HttpGet("{id:guid}", Name = "GetUserForCompany")]

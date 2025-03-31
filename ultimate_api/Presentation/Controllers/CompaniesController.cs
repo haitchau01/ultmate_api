@@ -1,11 +1,12 @@
-﻿using ActionFilters;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Presentation.ActionFilters;
 using Service.Constracts;
 using Shared.DataTransferObjects;
 using System.Threading.Tasks;
 
 namespace Presentation.Controllers
 {
+    [ApiVersion("1.0")]
     [Route("api/companies")]
     [ApiController]
     public class CompaniesController : ControllerBase
@@ -17,7 +18,7 @@ namespace Presentation.Controllers
             _serviceManager = serviceManager;
         }
 
-        [HttpGet("{id:guid}", Name = "CompanyById")]
+        [HttpGet(Name = "GetCompanies")]
         public async Task<IActionResult> GetCompanies()
         {
             var companies = await _serviceManager.CompanyService.GetAllCompaniesAsync(trackChanges: false);
@@ -38,7 +39,7 @@ namespace Presentation.Controllers
             return Ok(companies);
         }
 
-        [HttpPost]
+        [HttpPost(Name = "CreateCompany")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateCompany([FromBody] CompanyForCreationDTO company)
         {
@@ -73,6 +74,12 @@ namespace Presentation.Controllers
             await _serviceManager.CompanyService.UpdateCompanyAsync(id, company, trackChanges: true);
 
             return NoContent();
+        }
+        [HttpOptions]
+        public IActionResult GetCompaniesOptions()
+        {
+            Response.Headers.Add("Allow", "GET, OPTIONS, POST");
+            return Ok();
         }
 
     }

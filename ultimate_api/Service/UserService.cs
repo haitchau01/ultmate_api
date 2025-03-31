@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Constracts;
 using Entities.Exceptions;
+using Entities.LinkModels;
 using Entities.Models;
 using Service.Constracts;
 using Shared.DataTransferObjects;
@@ -19,14 +20,17 @@ namespace Service
         private readonly IMapper _mapper;
 
         private readonly IDataShaper<UserDTO> _dataShaper;
+        private readonly IUserLinks _userLinks;
 
-        public UserService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, IDataShaper<UserDTO> dataShaper)
+
+        public UserService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, IUserLinks userLinks)
         {
             _repository = repository;
             _logger = logger;
             _mapper = mapper;
-            _dataShaper = dataShaper;
+            _userLinks = userLinks;
         }
+
         public async Task<IEnumerable<UserDTO>> GetUsersAsync(Guid companyId, bool trackChanges)
         {
             await CheckIfCompanyExists(companyId, trackChanges);
@@ -104,19 +108,19 @@ namespace Service
             await _repository.SaveAsync();
         }
 
-        public async Task<(IEnumerable<ExpandoObject> users, MetaData metaData)> GetUsersAsync(Guid companyId, UserParameters userParameters, bool trackChanges)
-        {
-            if (!userParameters.ValidAgeRange)
-                throw new MaxAgeRangeBadRequestException();
-            await CheckIfCompanyExists(companyId, trackChanges);
+        //public async Task<(IEnumerable<ShapedEntity> users, MetaData metaData)> GetUsersAsync(Guid companyId, UserParameters userParameters, bool trackChanges)
+        //{
+        //    if (!userParameters.ValidAgeRange)
+        //        throw new MaxAgeRangeBadRequestException();
+        //    await CheckIfCompanyExists(companyId, trackChanges);
 
-            var usersWithMetaData = await _repository.User.GetUsersAsync(companyId, userParameters, trackChanges);
+        //    var usersWithMetaData = await _repository.User.GetUsersAsync(companyId, userParameters, trackChanges);
 
-            var userDTO = _mapper.Map<IEnumerable<UserDTO>>(usersWithMetaData);
-            var shapedData = _dataShaper.ShapeData(userDTO, userParameters.Fields);
+        //    var userDTO = _mapper.Map<IEnumerable<UserDTO>>(usersWithMetaData);
+        //    var shapedData = _dataShaper.ShapeData(userDTO, userParameters.Fields);
 
-            return (employees: shapedData, metaData: usersWithMetaData.MetaData);
-        }
+        //    return (users: shapedData, metaData: usersWithMetaData.MetaData);
+        //}
 
         private async Task CheckIfCompanyExists(Guid companyId, bool trackChanges)
         {
@@ -130,6 +134,20 @@ namespace Service
             if (userDb is null)
                 throw new UserNotFoundException(id);
             return userDb;
+        }
+
+
+        public async Task<(LinkResponse linkResponse, MetaData metaData)> GetUsersAsync(Guid companyId, LinkParameters linkParameters, bool trackChanges)
+        {
+            if (!linkParameters.UserParameters.ValidAgeRange)
+                throw new MaxAgeRangeBadRequestException();
+            await CheckIfCompanyExists(companyId, trackChanges);
+            var usersWithMetaData = await _repository.User.GetUsersAsync(companyId, linkParameters.UserParameters,
+            trackChanges);
+            var userDto =
+            _mapper.Map<IEnumerable<UserDTO>>(usersWithMetaData);
+            var links = _userLinks.TryGenerateLinks(userDto, linkParameters.UserParameters.Fields,companyId, linkParameters.Context);
+            return (linkResponse: links, metaData: usersWithMetaData.MetaData);
         }
     }
 }

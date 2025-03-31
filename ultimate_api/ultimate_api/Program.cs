@@ -1,13 +1,14 @@
-using ActionFilters;
 using Constracts;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Options;
 using NLog;
+using Presentation.ActionFilters;
 using Service;
 using Shared.DataTransferObjects;
 using ultimate_api.Extensions;
+using ultimate_api.Utility;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,8 +30,11 @@ builder.Services.ConfigureRepositoryManager();
 builder.Services.ConfigureServiceManager();
 builder.Services.ConfigureSqlContext(builder.Configuration);
 builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.ConfigureVersioning();
 
 builder.Services.AddScoped<IDataShaper<UserDTO>, DataShaper<UserDTO>>();
+builder.Services.AddScoped<IUserLinks, UserLinks>();
+
 //end -- ultimate_api.Extensions
 //action filter
 builder.Services.AddScoped<ValidationFilterAttribute>();
@@ -51,6 +55,8 @@ builder.Services.AddControllers(config =>
 .AddXmlDataContractSerializerFormatters()
 .AddCustomCSVFormatter()
 .AddApplicationPart(typeof(Presentation.AssemblyReference).Assembly);
+
+builder.Services.AddCustomMediaTypes();
 
 //end -- Add services to the container.
 
