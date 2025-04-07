@@ -7,6 +7,7 @@ using Service.Constracts;
 using Shared.DataTransferObjects;
 using Shared.Parameters;
 using System.Text.Json;
+using Microsoft.OpenApi.Models;
 
 namespace Presentation.Controllers
 {

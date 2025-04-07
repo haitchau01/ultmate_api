@@ -1,8 +1,10 @@
+using AspNetCoreRateLimit;
 using Constracts;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
 using NLog;
 using Presentation.ActionFilters;
 using Service;
@@ -43,6 +45,9 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.SuppressModelStateInvalidFilter = true;
 });
+builder.Services.ConfigureResponseCaching();
+builder.Services.ConfigureHttpCacheHeaders();
+
 
 //Config reponse
 builder.Services.AddControllers(config =>
@@ -51,14 +56,28 @@ builder.Services.AddControllers(config =>
     config.ReturnHttpNotAcceptable = true;
     // Add the NewtonsoftJsonPatchInputFormatter for JSON Patch
     config.InputFormatters.Insert(0, GetJsonPatchInputFormatter());
+    config.CacheProfiles.Add("120SecondsDuration", new CacheProfile
+    {
+        Duration = 120
+    });
+
 })
 .AddXmlDataContractSerializerFormatters()
 .AddCustomCSVFormatter()
 .AddApplicationPart(typeof(Presentation.AssemblyReference).Assembly);
 
 builder.Services.AddCustomMediaTypes();
-
+builder.Services.AddMemoryCache();
+builder.Services.ConfigureRateLimitingOptions();
+builder.Services.AddHttpContextAccessor();
+builder.Services.ConfigureRateLimitingOptions();
+builder.Services.AddHttpContextAccessor();
 //end -- Add services to the container.
+builder.Services.AddAuthentication();
+builder.Services.AddJwtConfiguration(builder.Configuration);
+builder.Services.ConfigureIdentity();
+builder.Services.ConfigureJWT(builder.Configuration);
+builder.Services.ConfigureSwagger();
 
 var app = builder.Build();
 
@@ -79,10 +98,24 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
     ForwardedHeaders = ForwardedHeaders.All
 });
 
+app.UseIpRateLimiting();
+
 app.UseCors("CorsPolicy");
 
-app.UseAuthorization();
+app.UseResponseCaching();
 
+app.UseHttpCacheHeaders();
+
+app.UseAuthentication();
+
+app.UseAuthorization();
+app.UseSwagger();
+app.UseSwaggerUI(s =>
+{
+    s.SwaggerEndpoint("/swagger/v1/swagger.json", "Code Maze API v1");
+    s.SwaggerEndpoint("/swagger/v2/swagger.json", "Code Maze API v2");
+   
+});
 app.MapControllers();
 
 app.Run();

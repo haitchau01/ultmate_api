@@ -18,6 +18,8 @@ namespace ultimate_api.AutoMaper
             CreateMap<UserForUpdateDTO, User>().ReverseMap();
 
             CreateMap<CompanyForUpdateDTO, Company>();
+            CreateMap<UserForRegistrationDTO, UserLogin>();
+
 
         }
     }
