@@ -1,10 +1,12 @@
+using Application.Behaviors;
 using AspNetCoreRateLimit;
 using Constracts;
+using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
 using NLog;
 using Presentation.ActionFilters;
 using Service;
@@ -78,7 +80,10 @@ builder.Services.AddJwtConfiguration(builder.Configuration);
 builder.Services.ConfigureIdentity();
 builder.Services.ConfigureJWT(builder.Configuration);
 builder.Services.ConfigureSwagger();
-
+builder.Services.AddMediatR(typeof(Application.AssemblyReference).Assembly);
+builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddValidatorsFromAssembly(typeof(Application.AssemblyReference).Assembly);
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>),typeof(ValidationBehavior<,>));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
